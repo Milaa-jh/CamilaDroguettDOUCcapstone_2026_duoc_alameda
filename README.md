@@ -12,6 +12,12 @@ Plataforma web educativa para que estudiantes universitarios organicen su materi
 > agrupados por asignatura. Incluye manejo de errores (página 404 personalizada, error boundary
 > global) y estados de carga.
 
+## Integrantes del equipo
+
+| Integrante | Rol(es) | Responsabilidades |
+|---|---|---|
+| **Camila Droguett** | Full Stack · Diseño UX/UI · QA | Definición del alcance y las épicas del proyecto; diseño de la arquitectura y el modelo de datos; desarrollo del frontend (Next.js + React) y la configuración del backend (Supabase); diseño de la interfaz; despliegue del proyecto. |
+
 ## Stack
 
 - **Frontend:** Next.js 14 (App Router) + React + TypeScript + Tailwind CSS
