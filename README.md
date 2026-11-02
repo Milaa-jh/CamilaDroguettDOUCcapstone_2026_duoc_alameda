@@ -163,6 +163,7 @@ eduvault-modular/
 │   ├── storage_policies.sql
 │   ├── avatar_policies.sql
 │   └── seed.sql
+│   └── migracion_color_material
 ├── middleware.ts             # Protección de rutas privadas
 └── .env.example
 ```
@@ -171,9 +172,9 @@ eduvault-modular/
 
 **Checklist antes de desplegar:**
 
-- [ ] Ejecutaste los 4 scripts SQL en tu proyecto de Supabase: `schema.sql`, `rls_policies.sql`, `storage_policies.sql`, `avatar_policies.sql`.
-- [ ] Creaste los buckets `materials` (privado) y `avatars` (público) en Storage.
-- [ ] Probaste localmente el registro, login, y al menos un flujo completo (crear asignatura → unidad → test → rendirlo).
+- [ ] Ejecutar los 5 scripts SQL en un proyecto de Supabase: `schema.sql`, `rls_policies.sql`, `storage_policies.sql`, `avatar_policies.sql`, `migracion_color_material`.
+- [ ] Crear los buckets `materials` (privado) y `avatars` (público) en Storage.
+- [ ] Probar localmente el registro, login, y al menos un flujo completo (crear asignatura → unidad → test → rendirlo).
 - [ ] Si vas a producción real (no solo demo), considera activar "Confirm email" con un proveedor SMTP propio en Supabase Auth (el servicio de correo gratuito de Supabase tiene límites muy bajos).
 
 **Pasos:**
