@@ -230,8 +230,7 @@ flowchart TB
 
 ## 9. Ideas para después del MVP
 
-El MVP cubre el flujo completo descrito en el prompt maestro. Algunas mejoras posibles para
-una siguiente iteración (fuera del alcance original):
+El MVP cubre el flujo completo. Algunas mejoras posibles para una siguiente iteración (fuera del alcance original):
 
 - Editor de texto enriquecido para resúmenes (en vez de texto plano).
 - Notificaciones o recordatorios de estudio.
