@@ -1,11 +1,11 @@
 # EduVault Modular
 
 Plataforma web educativa para que estudiantes universitarios organicen su material académico:
-**Usuario → Asignaturas → Unidades → Material de estudio → Resúmenes → Tests**.
+**Usuario → Asignaturas → Unidades → Bloques de material → Material de estudio → Resúmenes → Tests**.
 
 > ✅ **MVP completo — Sprints 1 a 6 terminados**
 > Este repositorio contiene la plataforma completa: **Autenticación**, **Dashboard**,
-> **Gestión académica** (Asignaturas, Unidades, Material con Supabase Storage), **Resúmenes y
+> **Gestión académica** (Asignaturas, Unidades, **Bloques de material** con archivos en Supabase Storage y **etiquetas de color**), **Resúmenes y
 > Tests** (con preguntas de alternativas), **Evaluación** (rendir tests, resultados, historial,
 > sección de Progreso), **Perfil de usuario** (editar nombre, foto de perfil, cambiar
 > contraseña), y una vista global de **"Tests"** en el menú lateral que lista todos tus tests
@@ -48,9 +48,14 @@ npm install
 
 En el **SQL Editor** de tu proyecto Supabase, ejecuta en este orden:
 
-1. `supabase/schema.sql` — crea las 9 tablas, relaciones, índices y triggers.
-2. `supabase/rls_policies.sql` — activa Row Level Security en todas las tablas
+1. `supabase/schema.sql` — crea las 9 tablas base, relaciones, índices y triggers.
+2. `supabase/rls_policies.sql` — activa Row Level Security en las tablas base
    y crea las políticas para que cada estudiante solo acceda a sus propios datos.
+3. `supabase/migracion_grupos_material.sql` — crea la tabla `material_groups` (bloques de material,
+   la décima tabla), agrega `group_id` a `materials` y sus políticas RLS. Si ya tenías material
+   subido, lo agrupa en un bloque llamado "Material general". Se puede ejecutar más de una vez sin duplicar nada.
+4. `supabase/migracion_color_material.sql` — agrega la columna opcional `color` a `materials`
+   (etiqueta de color; si un material no tiene color, la app usa uno automático según su tipo).
 
 ### 3.3 Configurar Storage
 
@@ -104,9 +109,9 @@ Abre [http://localhost:3000](http://localhost:3000).
 6. Intenta entrar a `/dashboard` sin sesión iniciada: el middleware te redirige a `/login`.
 7. Ve a `/subjects` y crea tu primera asignatura (nombre, código, descripción, color).
 8. Entra a la asignatura y crea unidades; prueba reordenarlas con las flechas ↑ ↓.
-9. Entra a una unidad y agrega material: prueba los tipos "Apunte"/"Texto" (sin archivo),
-   "PDF"/"Documento" (sube un archivo real) y "Enlace" (con una URL).
-10. Haz clic en "Descargar archivo" o "Abrir enlace" para confirmar que la descarga funciona.
+9. Entra a una unidad y pulsa "Agregar material" para crear un **bloque de material** (nombre y descripción libres, por ejemplo "1.1 Introducción"). Puedes editarlo o eliminarlo desde su tarjeta.
+10. Abre el bloque y pulsa "Agregar archivo": prueba los tipos "Apunte"/"Texto" (sin archivo), "PDF"/"Documento" (sube un archivo real) y "Enlace" (con una URL). Elige un **color de etiqueta** para cada material y comprueba que se vea en su tarjeta (si no eliges ninguno, se usa un color automático según el tipo).
+    Haz clic en "Descargar archivo" o "Abrir enlace" para confirmar que la descarga funciona.
 11. En la pestaña "Resúmenes" de una unidad, crea un resumen (título + contenido) y verifica que puedas editarlo/eliminarlo.
 12. En la pestaña "Tests", crea un test y agrégale preguntas: cada pregunta necesita al menos 2 alternativas y una marcada como correcta (círculo A/B/C...).
 13. Entra al test y haz clic en "Realizar test". Responde todas las preguntas y envíalas: verás tu puntaje, porcentaje y la revisión pregunta por pregunta (correcta en verde, tu error en rojo si aplica).
@@ -136,7 +141,8 @@ eduvault-modular/
 │       │   └── [subjectId]/
 │       │       ├── page.tsx                      # Detalle asignatura + CRUD unidades
 │       │       └── units/[unitId]/
-│       │           ├── page.tsx                   # Detalle unidad: Material, Resúmenes, Tests
+│       │           ├── page.tsx                   # Detalle unidad: Bloques de material, Resúmenes, Tests
+│       │           ├── materials/[groupId]/page.tsx # Detalle de un bloque: archivos y enlaces con color
 │       │           └── tests/[testId]/
 │       │               ├── page.tsx                # Gestión de preguntas + historial de intentos
 │       │               └── take/page.tsx            # Rendir el test y ver resultado
@@ -148,7 +154,7 @@ eduvault-modular/
 │   ├── sidebar/ · navbar/    # Navegación
 │   ├── subject/              # SubjectCard, SubjectFormModal
 │   ├── unit/                 # UnitListItem, UnitFormModal
-│   ├── material/             # MaterialCard, MaterialFormModal
+│   ├── material/             # MaterialGroupCard, MaterialGroupFormModal, MaterialCard, MaterialFormModal, materialColors
 │   ├── summary/              # SummaryCard, SummaryFormModal
 │   ├── test/                 # TestListItem, TestFormModal, QuestionCard/FormModal, TakeTestQuestion
 │   ├── progress/              # SubjectProgressCard
@@ -162,8 +168,9 @@ eduvault-modular/
 │   ├── rls_policies.sql
 │   ├── storage_policies.sql
 │   ├── avatar_policies.sql
-│   └── seed.sql
-│   └── migracion_color_material
+│   ├── seed.sql
+│   ├── migracion_grupos_material.sql
+│   └── migracion_color_material.sql
 ├── middleware.ts             # Protección de rutas privadas
 └── .env.example
 ```
@@ -172,9 +179,9 @@ eduvault-modular/
 
 **Checklist antes de desplegar:**
 
-- [ ] Ejecutar los 5 scripts SQL en un proyecto de Supabase: `schema.sql`, `rls_policies.sql`, `storage_policies.sql`, `avatar_policies.sql`, `migracion_color_material`.
+- [ ] Ejecutar los 6 scripts SQL en un proyecto de Supabase: `schema.sql`, `rls_policies.sql`, `storage_policies.sql`, `avatar_policies.sql`, `migracion_grupos_material.sql`, `migracion_color_material.sql`.
 - [ ] Crear los buckets `materials` (privado) y `avatars` (público) en Storage.
-- [ ] Probar localmente el registro, login, y al menos un flujo completo (crear asignatura → unidad → test → rendirlo).
+- [ ] Probar localmente el registro, login, y al menos un flujo completo (crear asignatura → unidad → bloque de material → test → rendirlo).
 - [ ] Si vas a producción real (no solo demo), considera activar "Confirm email" con un proveedor SMTP propio en Supabase Auth (el servicio de correo gratuito de Supabase tiene límites muy bajos).
 
 **Pasos:**
@@ -204,7 +211,7 @@ flowchart TB
     subgraph Supabase["SERVICIOS — Supabase (Backend / Service)"]
         direction TB
         Auth["Supabase Auth<br/>Registro · Login · Sesiones · Recuperar contraseña"]
-        DB[("PostgreSQL<br/>9 tablas relacionales<br/>profiles · subjects · units · materials<br/>summaries · tests · questions · options · test_attempts")]
+        DB[("PostgreSQL<br/>10 tablas relacionales<br/>profiles · subjects · units · material_groups · materials<br/>summaries · tests · questions · options · test_attempts")]
         RLS{{"Row Level Security (RLS)<br/>Cada usuario solo accede a sus propios datos"}}
         Storage["Supabase Storage<br/>Bucket 'materials' (privado)<br/>Bucket 'avatars' (público)"]
         DB --- RLS
